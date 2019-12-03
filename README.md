@@ -16,6 +16,6 @@ BLE 蓝牙
 
 ## 当前进度
 
-- [x]dart
-- [x]ios
-- [ ]android
+- [x] dart
+- [x] ios
+- [ ] android
