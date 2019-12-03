@@ -1,14 +1,21 @@
 # bluetooth_ble
 
-A new flutter plugin project.
+BLE 蓝牙
 
-## Getting Started
+## 用于连接 BLE 蓝牙设备
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+1. 扫描 BLE 外设
+2. 连接外设
+3. 探测服务
+4. 探测服务的特征码
+5. 监听特征码的通知 / 发送消息
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+异步步骤:
+
+1. 连接中断时断开连接
+
+## 当前进度
+
+- [x]dart
+- [x]ios
+- [ ]android
