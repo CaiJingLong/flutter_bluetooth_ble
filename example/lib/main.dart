@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bluetooth_ble/bluetooth_ble.dart';
 import 'package:flutter/material.dart';
+import 'package:oktoast/oktoast.dart';
 
 import 'device.dart';
 
@@ -20,8 +21,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: new HomePage(),
+    return OKToast(
+      child: MaterialApp(
+        home: new HomePage(),
+      ),
     );
   }
 }

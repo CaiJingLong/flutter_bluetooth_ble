@@ -59,7 +59,7 @@ extension CBCharacteristic{
         return properties.contains(.writeWithoutResponse)
     }
     
-    var notifyable: Bool{
+    var notifiable: Bool{
         return properties.contains(.notify)
     }
     

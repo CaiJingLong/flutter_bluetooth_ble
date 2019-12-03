@@ -48,6 +48,12 @@ class BluetoothConnection: NSObject {
         case "writeData":
             writeData(handler)
             break
+        case "changeNotify":
+            let chId = handler["ch"] as! String
+            let serviceId = handler["service"] as! String
+            let notify = handler["notify"] as! Bool
+            changeNotify(serviceId:serviceId, chId: chId, notify: notify)
+            handler.success(any: 1)
         default:
             handler.notImplemented()
         }
@@ -108,6 +114,8 @@ class BluetoothConnection: NSObject {
             handler.success(any: nil)
         }
     }
+    
+    
 }
 
 extension BluetoothConnection: CBPeripheralDelegate {
@@ -129,15 +137,7 @@ extension BluetoothConnection: CBPeripheralDelegate {
         
         if let chs = service.characteristics {
             for ch in chs {
-                // 继续传递数据到dart层
-                let chMap: [String:Any] = [
-                    "uuid": ch.id,
-                    "write": ch.writeable,
-                    "writeableWithoutResponse": ch.writeableWithoutResponse,
-                    "readable": ch.readable,
-                    "notifying": ch.isNotifying,
-                ]
-                result.append(chMap)
+                result.append(ch.toMap())
             }
         }
         
@@ -145,52 +145,48 @@ extension BluetoothConnection: CBPeripheralDelegate {
         chHandlerMap.removeValue(forKey: service.id)
     }
 
+    func changeNotify(serviceId:String, chId: String, notify: Bool){
+        
+        guard let service = findService(uuid: serviceId), let ch = service.findCharacteristic(id: chId) else{
+            return
+        }
+        
+        if ch.isNotifying == notify{
+            return
+        }
+        
+        peripheral.setNotifyValue(notify, for: ch)
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
+        invokeMethod("notifyState", [
+            "ch": characteristic.toMap(),
+            "serviceId": characteristic.service.id,
+        ])
+    }
+    
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        invokeMethod("notifyValue",[
+            "ch": characteristic.toMap(),
+            "serviceId": characteristic.service.id,
+            "data": characteristic.value ?? Data()
+        ])
+    }
 }
 
 extension BluetoothConnection {
     
     func writeData(_ replyHandler: ReplyHandler){
         let data = replyHandler.getData(key: "data")
-        let service = replyHandler["service"] as! String
-        let ch = replyHandler["ch"] as! String
-        
-        var cbService: CBService?
-        var cbCh: CBCharacteristic?
-        
-        guard let ss = peripheral.services else {
+        let serviceId = replyHandler["service"] as! String
+        let chId = replyHandler["ch"] as! String
+       
+        guard let service = findService(uuid: serviceId), let ch = service.findCharacteristic(id: chId) else{
             replyHandler.success(any: -1)
             return
         }
         
-        for s in ss {
-            if s.id == service{
-                cbService = s
-                break
-            }
-        }
-        
-        if cbService == nil {
-            replyHandler.success(any: -1)
-            return
-        }
-        
-        if let characteristics = cbService!.characteristics{
-            for characteristic in characteristics{
-                if characteristic.id == ch{
-                    cbCh = characteristic
-                    break
-                }
-            }
-        } else {
-            replyHandler.success(any: -1)
-        }
-        
-        if cbCh == nil{
-             replyHandler.success(any: -1)
-            return
-        }
-        
-        peripheral.writeValue(data, for: cbCh!, type: .withoutResponse)
+        peripheral.writeValue(data, for: ch , type: .withoutResponse)
         replyHandler.success(any: 1)
     }
     

@@ -61,18 +61,17 @@ class _DevicePageState extends State<DevicePage> {
     );
   }
 
-  Widget _buildService(String service) {
+  Widget _buildService(BleService service) {
     return ListTile(
-      title: Text(service),
+      title: Text(service.id),
       onTap: () async {
-        final list = await device.discoverCharacteristics(service);
+        await device.discoverCharacteristics(service);
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => ServicePage(
               device: device,
               service: service,
-              chs: list,
             ),
           ),
         );

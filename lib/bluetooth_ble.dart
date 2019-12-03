@@ -4,6 +4,8 @@ import 'src/ble_device.dart';
 import 'package:flutter/services.dart';
 export 'src/ble_device.dart';
 export 'src/ble_ch.dart';
+export 'src/ble_service.dart';
+export 'src/ble_notify_data.dart';
 
 class BluetoothBle {
   static const MethodChannel _channel = const MethodChannel('bluetooth_ble');
@@ -27,7 +29,7 @@ class BluetoothBle {
   /// timeout, second
   Future<List<BleDevice>> scan({
     List<String> services,
-    int timeout = 3,
+    int timeout = 1,
   }) async {
     final result = await _channel.invokeMethod("scan", {
       "services": services,

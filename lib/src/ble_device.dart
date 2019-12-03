@@ -1,17 +1,23 @@
-import 'dart:convert';
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'ble_ch.dart';
+import 'ble_notify_data.dart';
+import 'ble_service.dart';
 
 class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
+  StreamController<BleNotifyData> _notifyDataCtl = StreamController.broadcast();
+
+  Stream<BleNotifyData> get notifyDataStream => _notifyDataCtl.stream;
+
   String id;
   int rssi;
   String name;
 
-  List<String> service = [];
+  List<BleService> service = [];
 
   bool _isConnect = false;
 
@@ -30,6 +36,12 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
       ..name = map["name"]
       ..rssi = map["rssi"]
       ..refreshChannel();
+  }
+
+  @override
+  void dispose() {
+    _notifyDataCtl.close();
+    super.dispose();
   }
 
   void refreshChannel() {
@@ -61,6 +73,12 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
         break;
       case "onDiscoverServices":
         onDiscoverServices(call);
+        break;
+      case "notifyState":
+        onNotifyStateChange(call.arguments);
+        break;
+      case "notifyValue":
+        notifyGetValue(call.arguments);
         break;
     }
   }
@@ -97,16 +115,16 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
 
   void onDiscoverServices(MethodCall call) {
     final List args = call.arguments;
-    print("找到service: $args");
-    args.sort();
-    this.service.addAll(args.cast());
+    final services = args.map((v) => BleService(this, v));
+    this.service.clear();
+    this.service.addAll(services);
     notifyListeners();
   }
 
-  Future<List<BleCh>> discoverCharacteristics(String service) async {
+  Future<List<BleCh>> discoverCharacteristics(BleService service) async {
     final List characteristics =
         await _channel.invokeMethod("discoverCharacteristics", {
-      "service": service,
+      "service": service.id,
     });
 
     final result = <BleCh>[];
@@ -114,6 +132,8 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
     for (final map in characteristics) {
       result.add(BleCh.fromMap(map, service: service));
     }
+
+    service.resetCh(result);
 
     return result;
   }
@@ -127,9 +147,56 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
       return;
     }
     await _channel.invokeMethod("writeData", {
-      "service": ch.service,
+      "service": ch.service.id,
       "data": data,
       "ch": ch.id,
     });
+  }
+
+  void changeNotify(BleCh ch, {bool notify}) async {
+    if (notify == null) {
+      notify = !ch.notifying;
+    }
+    await _channel.invokeMethod(
+      "changeNotify",
+      {
+        "ch": ch.id,
+        "service": ch.service.id,
+        "notify": notify,
+      },
+    );
+  }
+
+  void onNotifyStateChange(arguments) {
+    final service = findServiceById(arguments["serviceId"]);
+    final ch = BleCh.fromMap(arguments["ch"], service: service);
+    service.updateCh(ch);
+    notifyListeners();
+  }
+
+  BleService findServiceById(String id) {
+    return service.firstWhere((v) => v.id == id);
+  }
+
+  @override
+  bool operator ==(other) {
+    if (other == null) {
+      return false;
+    }
+    if (other is! BleCh) {
+      return false;
+    } else {
+      return this.id == other.id;
+    }
+  }
+
+  @override
+  int get hashCode => this.id.hashCode;
+
+  void notifyGetValue(arguments) {
+    final service = findServiceById(arguments["serviceId"]);
+    final Uint8List data = arguments["data"];
+    final ch = BleCh.fromMap(arguments["ch"], service: service);
+    _notifyDataCtl.add(BleNotifyData(ch, data));
   }
 }

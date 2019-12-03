@@ -15,6 +15,7 @@ dependencies:
   # flutter_blue: ^0.6.3+1
   bluetooth_ble:
     path: ../
+  oktoast: ^2.2.0
 
 dev_dependencies:
   flutter_test:
