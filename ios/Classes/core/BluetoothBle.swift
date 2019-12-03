@@ -70,8 +70,8 @@ class Ble :NSObject, CBCentralManagerDelegate{
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         NSLog("扫描到设备, \(peripheral.name ?? "未知"), id = \(peripheral.identifier)")
         let wrapper = BluetoothWrapper(device: peripheral, rssi: RSSI.intValue)
-        deviceMap[peripheral.identifier.uuidString] = wrapper
-        connectionMap[peripheral.identifier.uuidString] = BluetoothConnection(manager:manager, wrapper: wrapper)
+        deviceMap[peripheral.id] = wrapper
+        connectionMap[peripheral.id] = BluetoothConnection(manager:manager, wrapper: wrapper)
     }
     
     var connectionMap = Dictionary<String, BluetoothConnection>()
@@ -82,7 +82,7 @@ class Ble :NSObject, CBCentralManagerDelegate{
     
     
     func findConnection(peripheral: CBPeripheral)->BluetoothConnection?{
-        return connectionMap[peripheral.identifier.uuidString]
+        return connectionMap[peripheral.id]
     }
     
     

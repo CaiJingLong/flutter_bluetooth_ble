@@ -13,7 +13,7 @@ struct BluetoothWrapper{
     var rssi:Int
     
     var id: String {
-        return device.identifier.uuidString
+        return device.id
     }
     
     func toMap() -> Dictionary<String, Any>{

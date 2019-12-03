@@ -49,4 +49,9 @@ extension ReplyHandler{
     subscript(key:String) -> Any? {
         return (self.call.arguments as? Dictionary)?[key]
     }
+    
+    func getData(key:String)-> Data{
+        let typedData = self[key] as! FlutterStandardTypedData
+        return typedData.data
+    }
 }

@@ -45,13 +45,16 @@ class BluetoothConnection: NSObject {
         case "discoverCharacteristics":
             discoverCharacteristics(handler)
             break
+        case "writeData":
+            writeData(handler)
+            break
         default:
             handler.notImplemented()
         }
     }
     
     func onConnect(){
-       invokeMethod("onConnect")
+        invokeMethod("onConnect")
     }
     
     func onFailConnect(error:Error?){
@@ -74,10 +77,10 @@ class BluetoothConnection: NSObject {
         manager.cancelPeripheralConnection(wrapper.device)
     }
     
-//    var serviceHandler: ReplyHandler? = nil
+    //    var serviceHandler: ReplyHandler? = nil
     
     func discoverService(_ handler: ReplyHandler){
-//        serviceHandler = handler
+        //        serviceHandler = handler
         peripheral.discoverServices(nil)
     }
     
@@ -89,7 +92,7 @@ class BluetoothConnection: NSObject {
             return nil
         }
         for service in peripheral.services!{
-            if service.uuid.uuidString == uuid{
+            if service.id == uuid{
                 return service
             }
         }
@@ -111,30 +114,84 @@ extension BluetoothConnection: CBPeripheralDelegate {
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services else {
-//            serviceHandler?.result(nil)
+            //            serviceHandler?.result(nil)
             return
         }
         let result = services.map { (service) -> String in
-            return service.uuid.uuidString
+            return service.id
         }
         invokeMethod("onDiscoverServices", result)
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        let handler = chHandlerMap[service.uuid.uuidString]
+        let handler = chHandlerMap[service.id]
         var result = [Dictionary<String,Any>]();
         
-        if let chs = service.characteristics{
+        if let chs = service.characteristics {
             for ch in chs {
                 // 继续传递数据到dart层
-                let chMap = [
+                let chMap: [String:Any] = [
+                    "uuid": ch.id,
+                    "write": ch.writeable,
+                    "writeableWithoutResponse": ch.writeableWithoutResponse,
+                    "readable": ch.readable,
                     "notifying": ch.isNotifying,
-                    
                 ]
                 result.append(chMap)
             }
         }
         
         handler?.success(any: result)
+        chHandlerMap.removeValue(forKey: service.id)
     }
+
+}
+
+extension BluetoothConnection {
+    
+    func writeData(_ replyHandler: ReplyHandler){
+        let data = replyHandler.getData(key: "data")
+        let service = replyHandler["service"] as! String
+        let ch = replyHandler["ch"] as! String
+        
+        var cbService: CBService?
+        var cbCh: CBCharacteristic?
+        
+        guard let ss = peripheral.services else {
+            replyHandler.success(any: -1)
+            return
+        }
+        
+        for s in ss {
+            if s.id == service{
+                cbService = s
+                break
+            }
+        }
+        
+        if cbService == nil {
+            replyHandler.success(any: -1)
+            return
+        }
+        
+        if let characteristics = cbService!.characteristics{
+            for characteristic in characteristics{
+                if characteristic.id == ch{
+                    cbCh = characteristic
+                    break
+                }
+            }
+        } else {
+            replyHandler.success(any: -1)
+        }
+        
+        if cbCh == nil{
+             replyHandler.success(any: -1)
+            return
+        }
+        
+        peripheral.writeValue(data, for: cbCh!, type: .withoutResponse)
+        replyHandler.success(any: 1)
+    }
+    
 }

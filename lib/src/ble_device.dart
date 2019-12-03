@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'ble_ch.dart';
 
 class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
   String id;
@@ -98,9 +103,33 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
     notifyListeners();
   }
 
-  Future<void> discoverCharacteristics(String service) async {
-    await _channel.invokeMethod("discoverCharacteristics", {
-      "services": service,
+  Future<List<BleCh>> discoverCharacteristics(String service) async {
+    final List characteristics =
+        await _channel.invokeMethod("discoverCharacteristics", {
+      "service": service,
+    });
+
+    final result = <BleCh>[];
+
+    for (final map in characteristics) {
+      result.add(BleCh.fromMap(map, service: service));
+    }
+
+    return result;
+  }
+
+  Future<void> writeData({
+    @required BleCh ch,
+    @required Uint8List data,
+  }) async {
+    if (!ch.writeNoResponse) {
+      print("不能写数据");
+      return;
+    }
+    await _channel.invokeMethod("writeData", {
+      "service": ch.service,
+      "data": data,
+      "ch": ch.id,
     });
   }
 }

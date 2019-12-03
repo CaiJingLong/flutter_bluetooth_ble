@@ -3,6 +3,7 @@ import 'dart:async';
 import 'src/ble_device.dart';
 import 'package:flutter/services.dart';
 export 'src/ble_device.dart';
+export 'src/ble_ch.dart';
 
 class BluetoothBle {
   static const MethodChannel _channel = const MethodChannel('bluetooth_ble');
