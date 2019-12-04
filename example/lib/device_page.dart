@@ -1,6 +1,7 @@
-import 'package:bluetooth_ble_example/service.dart';
 import 'package:flutter/material.dart';
 import 'package:bluetooth_ble/bluetooth_ble.dart';
+
+import 'service_page.dart';
 
 class DevicePage extends StatefulWidget {
   final BleDevice device;

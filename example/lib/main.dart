@@ -4,7 +4,7 @@ import 'package:bluetooth_ble/bluetooth_ble.dart';
 import 'package:flutter/material.dart';
 import 'package:oktoast/oktoast.dart';
 
-import 'device.dart';
+import 'device_page.dart';
 
 void main() => runApp(MyApp());
 
