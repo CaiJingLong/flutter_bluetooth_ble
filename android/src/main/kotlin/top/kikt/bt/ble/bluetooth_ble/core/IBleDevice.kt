@@ -84,6 +84,7 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
         invokeMethod("onConnect")
       } else {
         invokeMethod("onDisconnect")
+        gatt?.close()
       }
     }
     
@@ -99,7 +100,6 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
     
     override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
       super.onCharacteristicChanged(gatt, characteristic)
-      logger.info("onCharacteristicChanged : characteristic = $characteristic")
       /// 接收消息
       if (characteristic == null) {
         return
