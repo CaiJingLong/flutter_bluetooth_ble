@@ -18,4 +18,4 @@ BLE 蓝牙
 
 - [x] dart
 - [x] ios
-- [ ] android
+- [x] android
