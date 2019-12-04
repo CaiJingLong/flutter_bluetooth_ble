@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:bluetooth_ble/bluetooth_ble.dart';
+import 'package:oktoast/oktoast.dart';
 
 import 'service_page.dart';
 
@@ -34,7 +35,7 @@ class _DevicePageState extends State<DevicePage> {
       appBar: AppBar(
         title: Text(widget.device.name),
       ),
-      body: Column(
+      body: ListView(
         children: <Widget>[
           RaisedButton(
             child: Text(isConnect ? "断开" : "连接"),
@@ -47,10 +48,10 @@ class _DevicePageState extends State<DevicePage> {
             },
           ),
           RaisedButton(
-            child: Text("扫描"),
+            child: Text("扫描服务"),
             onPressed: () {
               if (!device.isConnect) {
-                print("先连接");
+                showToast("请先连接");
                 return;
               }
               device.discoverServices();

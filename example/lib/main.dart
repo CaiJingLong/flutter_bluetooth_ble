@@ -47,11 +47,11 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('Plugin example app'),
       ),
-      body: Column(
+      body: ListView(
         children: <Widget>[
           RaisedButton(
             onPressed: _scan,
-            child: Text("scan"),
+            child: Text("扫描设备"),
           ),
           for (final device in devices) _buildItem(device)
         ],
@@ -60,11 +60,31 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _scan() async {
+    showLoadingDialog();
+
     final devices = await ble.scan();
+
+    Navigator.pop(context);
+
     print(devices);
 
     this.devices = devices;
     setState(() {});
+  }
+
+  void showLoadingDialog() {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return Center(
+          child: Container(
+            width: 40,
+            height: 40,
+            child: CircularProgressIndicator(),
+          ),
+        );
+      },
+    );
   }
 
   String get serviceUUID {

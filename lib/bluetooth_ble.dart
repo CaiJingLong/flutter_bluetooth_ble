@@ -29,7 +29,7 @@ class BluetoothBle {
   /// timeout, second
   Future<List<BleDevice>> scan({
     List<String> services,
-    int timeout = 1,
+    int timeout = 3,
   }) async {
     final result = await _channel.invokeMethod("scan", {
       "services": services,

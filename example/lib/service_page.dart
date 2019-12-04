@@ -24,18 +24,53 @@ class _ServicePageState extends State<ServicePage> {
 
   StreamSubscription<BleNotifyData> sub;
 
+  List<String> receiveData = [];
+
   @override
   void initState() {
     super.initState();
     sub = device.notifyDataStream.listen((data) {
       print("接收到的消息: ${data.data.toList()}");
+      receiveData.add(utf8.decode(data.data.toList()));
+      if (mounted) {
+        setState(() {});
+      }
     });
+    device.addListener(_onChange);
   }
 
   @override
   void dispose() {
+    device.removeListener(_onChange);
     sub?.cancel();
     super.dispose();
+  }
+
+  void _onChange() {
+    if (mounted && !device.isConnect) {
+      showDialog(
+          context: context,
+          builder: (_) {
+            return AlertDialog(
+              title: Text("连接中断, 是否退出此页面"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("不"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                FlatButton(
+                  child: Text("退"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          });
+    }
   }
 
   @override
@@ -70,7 +105,7 @@ class _ServicePageState extends State<ServicePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text("notifiable: ${ch.notifiable}"),
-                Text("service: ${ch.service}"),
+                Text("service: ${ch.service.id}"),
                 Text("read: ${ch.read}"),
                 Text("write: ${ch.write}"),
                 Text("writeNoResponse: ${ch.writeNoResponse}"),
@@ -96,6 +131,37 @@ class _ServicePageState extends State<ServicePage> {
                 child: Text("监听"),
                 onPressed: () {
                   device.changeNotify(ch);
+                },
+              ),
+              Container(
+                height: 10,
+              ),
+              RaisedButton(
+                child: Text("显示接收消息日志"),
+                onPressed: () {
+                  final style = Theme.of(context).textTheme.body2;
+                  showDialog(
+                    context: context,
+                    builder: (_) => Center(
+                      child: Container(
+                        color: Colors.white,
+                        child: ListView.builder(
+                          itemBuilder: (BuildContext context, int index) {
+                            return Container(
+                              height: 30,
+                              alignment: Alignment.center,
+                              child: Text(
+                                receiveData[index],
+                                style: style,
+                              ),
+                            );
+                          },
+                          itemCount: receiveData.length,
+                          shrinkWrap: true,
+                        ),
+                      ),
+                    ),
+                  );
                 },
               ),
             ],

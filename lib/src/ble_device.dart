@@ -101,6 +101,7 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
   }
 
   void onDisconnect() {
+    this.service.clear();
     isConnect = false;
   }
 
@@ -198,5 +199,11 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
     final Uint8List data = arguments["data"];
     final ch = BleCh.fromMap(arguments["ch"], service: service);
     _notifyDataCtl.add(BleNotifyData(ch, data));
+  }
+
+  @override
+  void notifyListeners() {
+    print("ble notify listeners");
+    super.notifyListeners();
   }
 }
