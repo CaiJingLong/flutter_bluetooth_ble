@@ -1,5 +1,9 @@
 package top.kikt.bt.ble.bluetooth_ble
 
+import android.Manifest
+import android.annotation.SuppressLint
+import androidx.fragment.app.FragmentActivity
+import com.tbruyelle.rxpermissions2.RxPermissions
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -8,24 +12,42 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import top.kikt.bt.ble.bluetooth_ble.core.BleHelper
 import top.kikt.bt.ble.bluetooth_ble.core.ReplyHandler
 
-class BluetoothBlePlugin : MethodCallHandler {
+class BluetoothBlePlugin(registrar: Registrar) : MethodCallHandler {
   
-  val manager = BleHelper()
+  private val manager = BleHelper(registrar)
+  
+  private val rxPermission: RxPermissions = RxPermissions(registrar.activity() as FragmentActivity)
   
   companion object {
     @JvmStatic
     fun registerWith(registrar: Registrar) {
       val channel = MethodChannel(registrar.messenger(), "bluetooth_ble")
-      channel.setMethodCallHandler(BluetoothBlePlugin())
+      channel.setMethodCallHandler(BluetoothBlePlugin(registrar))
     }
   }
   
+  @SuppressLint("CheckResult")
   override fun onMethodCall(call: MethodCall, result: Result) {
     val handler = ReplyHandler(call, result)
-    when (call.method) {
-      "scan" -> {
-        manager.scanDevice(handler)
+    rxPermission.request(
+      Manifest.permission.BLUETOOTH_ADMIN,
+      Manifest.permission.BLUETOOTH,
+      Manifest.permission.ACCESS_COARSE_LOCATION,
+      Manifest.permission.ACCESS_FINE_LOCATION
+    ).subscribe { permissionResult ->
+      if (permissionResult) {
+        when (call.method) {
+          "scan" -> {
+            manager.scanDevice(handler)
+          }
+          "init" -> {
+          
+          }
+        }
+      } else {
+        handler.success(-1)
       }
     }
+    
   }
 }

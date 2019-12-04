@@ -49,6 +49,6 @@ class ReplyHandler(val call: MethodCall, private val result: MethodChannel.Resul
   }
 }
 
-operator fun <T> ReplyHandler.get(key: String): T {
-  return call.argument<T>(key)!!
+fun <T> ReplyHandler.param(key: String): T? {
+  return call.argument<T>(key)
 }
