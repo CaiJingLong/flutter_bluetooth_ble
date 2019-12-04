@@ -18,10 +18,23 @@ void main() {
     // Verify that platform version is retrieved.
     expect(
       find.byWidgetPredicate(
-        (Widget widget) => widget is Text &&
-                           widget.data.startsWith('Running on:'),
+        (Widget widget) =>
+            widget is Text && widget.data.startsWith('Running on:'),
       ),
       findsOneWidget,
     );
+  });
+
+  test("print string", () {
+    final rec =
+        "12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm12345678901234567890qwertyuiopasdfghjklzxcvbnm";
+
+    final send = "12345678901234567890qwertyuiopasdfghjklzxcvbnm" * 20;
+
+    expectSync(rec, send);
+  });
+
+  test("always error", () {
+    expectSync(1, 0);
   });
 }

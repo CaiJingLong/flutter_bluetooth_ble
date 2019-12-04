@@ -142,11 +142,47 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
   Future<void> writeData({
     @required BleCh ch,
     @required Uint8List data,
+    Duration everyDelay = const Duration(milliseconds: 30),
   }) async {
     if (!ch.writeNoResponse) {
       print("不能写数据");
       return;
     }
+
+    // 如果数据大于20字节, 需要拆开发送
+    if (data.length <= 20) {
+      await _writeData(ch: ch, data: data);
+    } else {
+      var count = data.length ~/ 20;
+
+      final remainder = data.length % 20;
+      if (remainder > 0) {
+        count++;
+      }
+
+      print("长度 : ${data.length} 字节, 需要拆成$count个");
+
+      for (var i = 0; i < count; i++) {
+        final start = i * 20;
+        int end;
+        if (remainder > 0 && i == count - 1) {
+          end = start + remainder;
+        } else {
+          end = start + 20;
+        }
+        await _writeData(
+          ch: ch,
+          data: data.sublist(start, end),
+        );
+        if (i != count - 1) {
+          await Future.delayed(everyDelay);
+        }
+      }
+    }
+  }
+
+  Future<void> _writeData(
+      {@required BleCh ch, @required Uint8List data}) async {
     await _channel.invokeMethod("writeData", {
       "service": ch.service.id,
       "data": data,

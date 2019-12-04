@@ -4,31 +4,54 @@ import android.util.Log
 
 /// create 2019-11-27 by cai
 
-class Logger(val any: Any) {
+class Logger(any: Any) {
+  
+  companion object {
+    var level = LoggerLevel.Debug
+  }
   
   private val tag = any.javaClass.simpleName
   
   fun verbose(any: Any?) {
-    Log.v(tag, any?.toString())
-  }
-  
-  fun info(any: Any?) {
-    Log.i(tag, any?.toString())
+    checkLevel(LoggerLevel.Verbose) {
+      Log.v(tag, any?.toString())
+    }
   }
   
   fun debug(any: Any?) {
-    Log.d(tag, any?.toString())
+    checkLevel(LoggerLevel.Debug) {
+      Log.d(tag, any?.toString())
+    }
+  }
+  
+  fun info(any: Any?) {
+    checkLevel(LoggerLevel.Info) {
+      Log.i(tag, any?.toString())
+    }
   }
   
   fun warning(any: Any?) {
-    Log.w(tag, any?.toString())
+    checkLevel(LoggerLevel.Warning) {
+      Log.w(tag, any?.toString())
+    }
   }
   
   fun error(any: Any?) {
-    Log.e(tag, any?.toString())
+    checkLevel(LoggerLevel.Error) {
+      Log.e(tag, any?.toString())
+    }
   }
   
+  private inline fun checkLevel(target: LoggerLevel, runnable: () -> Unit) {
+    if (level <= target) {
+      runnable()
+    }
+  }
 }
 
 val Any.logger: Logger
   get() = Logger(this)
+
+enum class LoggerLevel {
+  Verbose, Debug, Info, Warning, Error,
+}

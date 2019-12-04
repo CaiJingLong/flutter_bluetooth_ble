@@ -172,7 +172,12 @@ class _ServicePageState extends State<ServicePage> {
   }
 
   void writeData(BleCh ch) {
-    String data = "abc\n";
+    // String data = "abc\n";
+    String data = "12345678901234567890qwertyuiopasdfghjklzxcvbnm" * 20;
+
+    data = "$data\n";
+
+    // String data = "abc234567890-34567890-4567890567890\n";
     final list = utf8.encode(data);
     device.writeData(ch: ch, data: Uint8List.fromList(list));
   }

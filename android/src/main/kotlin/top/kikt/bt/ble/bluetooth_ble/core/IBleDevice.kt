@@ -63,7 +63,7 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
   inner class GattCallback : BluetoothGattCallback() {
     override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
       super.onConnectionStateChange(gatt, status, newState)
-      logger.info("status = $status, newState = $newState")
+      logger.debug("status = $status, newState = $newState")
       when (newState) {
         BluetoothGatt.STATE_CONNECTED -> {
           notifyConnectState(true)
@@ -109,6 +109,11 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
         "data" to characteristic.value,
         "ch" to characteristic.toMap(true)
       ))
+    }
+    
+    override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
+      super.onCharacteristicWrite(gatt, characteristic, status)
+      logger.debug("onCharacteristicWrite: status=$status, value = ${characteristic?.value}")
     }
   }
   
@@ -170,6 +175,7 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
         
         ch.value = data
         gatt?.writeCharacteristic(ch)
+        handler.success(1)
       }
       else -> {
       }
