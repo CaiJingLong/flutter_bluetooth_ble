@@ -215,7 +215,7 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
     if (service == null || service.isEmpty) {
       return null;
     }
-    return service.firstWhere((v) => v.id == id);
+    return service.firstWhere((v) => v.id == id, orElse: () => null);
   }
 
   Future<BleCh> findCh(String serviceId, String chId) async {

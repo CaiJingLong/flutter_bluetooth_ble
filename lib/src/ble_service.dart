@@ -22,7 +22,7 @@ class BleService with ChangeNotifier {
     if (chs.isEmpty) {
       return null;
     }
-    return chs.firstWhere((test) => test.id == chId);
+    return chs.firstWhere((test) => test.id == chId, orElse: () => null);
   }
 
   void updateCh(BleCh ch) {
