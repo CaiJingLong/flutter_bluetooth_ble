@@ -18,6 +18,10 @@ class BleService with ChangeNotifier {
     notifyListeners();
   }
 
+  BleCh findCh(String chId) {
+    return chs.firstWhere((test) => test.id == chId);
+  }
+
   void updateCh(BleCh ch) {
     final index = chs.indexOf(ch);
     if (index != -1) {
