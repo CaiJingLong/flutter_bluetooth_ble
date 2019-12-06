@@ -212,6 +212,9 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
   }
 
   BleService findServiceById(String id) {
+    if (service == null || service.isEmpty) {
+      return null;
+    }
     return service.firstWhere((v) => v.id == id);
   }
 

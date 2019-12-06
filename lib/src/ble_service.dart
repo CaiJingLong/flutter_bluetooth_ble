@@ -19,6 +19,9 @@ class BleService with ChangeNotifier {
   }
 
   BleCh findCh(String chId) {
+    if (chs.isEmpty) {
+      return null;
+    }
     return chs.firstWhere((test) => test.id == chId);
   }
 
