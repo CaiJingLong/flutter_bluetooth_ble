@@ -71,9 +71,6 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
       case "connectFail":
         connectFail();
         break;
-      case "onDiscoverServices":
-        onDiscoverServices(call);
-        break;
       case "notifyState":
         onNotifyStateChange(call.arguments);
         break;
@@ -109,17 +106,15 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
     isConnect = false;
   }
 
-  Future<void> discoverServices() async {
-    this.service.clear();
-    await _channel.invokeMethod("discoverServices");
-  }
-
-  void onDiscoverServices(MethodCall call) {
-    final List args = call.arguments;
-    final services = args.map((v) => BleService(this, v));
+  Future<List<BleService>> discoverServices() async {
+    final result = await _channel.invokeMethod("discoverServices");
+    final List args = result;
+    args.sort();
+    final services = args.map((v) => BleService(this, v)).toList();
     this.service.clear();
     this.service.addAll(services);
     notifyListeners();
+    return services;
   }
 
   Future<List<BleCh>> discoverCharacteristics(BleService service) async {

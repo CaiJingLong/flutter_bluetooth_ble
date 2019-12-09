@@ -83,10 +83,10 @@ class BluetoothConnection: NSObject {
         manager.cancelPeripheralConnection(wrapper.device)
     }
     
-    //    var serviceHandler: ReplyHandler? = nil
+    var serviceHandler: ReplyHandler? = nil
     
     func discoverService(_ handler: ReplyHandler){
-        //        serviceHandler = handler
+        serviceHandler = handler
         peripheral.discoverServices(nil)
     }
     
@@ -122,13 +122,15 @@ extension BluetoothConnection: CBPeripheralDelegate {
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services else {
-            //            serviceHandler?.result(nil)
+            serviceHandler?.success(any: [String]())
+            serviceHandler = nil
             return
         }
         let result = services.map { (service) -> String in
             return service.id
         }
-        invokeMethod("onDiscoverServices", result)
+        serviceHandler?.success(any: result)
+        serviceHandler = nil
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {

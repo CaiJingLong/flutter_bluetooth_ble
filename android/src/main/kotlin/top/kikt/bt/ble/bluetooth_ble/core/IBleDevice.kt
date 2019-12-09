@@ -94,7 +94,12 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
       if (services != null) {
         this@BleDevice.services.clear()
         this@BleDevice.services.addAll(services)
-        invokeMethod("onDiscoverServices", services.map { it.uuid.toString() })
+        val serviceResult = services.map { it.uuid.toString() }
+        discoverServiceHandler?.success(serviceResult)
+        discoverServiceHandler = null
+      } else {
+        discoverServiceHandler?.success(arrayListOf<String>())
+        discoverServiceHandler = null
       }
     }
     
@@ -119,6 +124,8 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
   
   private val callback = GattCallback()
   
+  var discoverServiceHandler: ReplyHandler? = null
+  
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     val handler = ReplyHandler(call, result)
     when (call.method) {
@@ -129,6 +136,7 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
         gatt?.disconnect()
       }
       "discoverServices" -> {
+        discoverServiceHandler = handler
         gatt?.discoverServices()
       }
       "discoverCharacteristics" -> {
