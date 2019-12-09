@@ -214,16 +214,20 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
   }
 
   Future<BleCh> findCh(String serviceId, String chId) async {
-    BleService service = findServiceById(id);
+    BleService service = findServiceById(serviceId);
     if (service == null) {
       await discoverServices();
-      service = findServiceById(id);
+      service = findServiceById(serviceId);
     }
 
     if (service == null) {
       return null;
     }
-    await discoverCharacteristics(service);
+    final ch = service.findCh(chId);
+
+    if (ch == null) {
+      await discoverCharacteristics(service);
+    }
     return service.findCh(chId);
   }
 
