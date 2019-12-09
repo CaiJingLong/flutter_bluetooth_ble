@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'ble_ch.dart';
 import 'ble_device.dart';
+import 'utils/string_utils.dart';
 
 class BleService with ChangeNotifier {
   final String id;
@@ -22,7 +23,10 @@ class BleService with ChangeNotifier {
     if (chs.isEmpty) {
       return null;
     }
-    return chs.firstWhere((test) => test.id == chId, orElse: () => null);
+    return chs.firstWhere(
+      (test) => StringUtils.equalsIgnoreCase(test.id, chId),
+      orElse: () => null,
+    );
   }
 
   void updateCh(BleCh ch) {
