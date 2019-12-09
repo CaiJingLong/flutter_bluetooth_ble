@@ -7,7 +7,7 @@ import 'utils/string_utils.dart';
 class BleService with ChangeNotifier {
   final String id;
   final BleDevice device;
-  List<BleCh> chs = List()..length = 1;
+  List<BleCh> chs = [];
 
   BleService(
     this.device,
@@ -38,7 +38,8 @@ class BleService with ChangeNotifier {
   }
 
   void resetCh(List<BleCh> result) {
-    this.chs = result;
+    this.chs.clear();
+    this.chs.addAll(result);
     notifyListeners();
   }
 
