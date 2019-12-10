@@ -81,8 +81,10 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
     
     private fun notifyConnectState(gatt: BluetoothGatt?, isConnect: Boolean) {
       if (isConnect) {
+        ConnectedBleManager.addDevice(this@BleDevice)
         invokeMethod("onConnect")
       } else {
+        ConnectedBleManager.removeDevice(this@BleDevice)
         invokeMethod("onDisconnect")
         gatt?.close()
       }

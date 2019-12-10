@@ -39,7 +39,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final ble = BluetoothBle();
 
-  List<BleDevice> devices = [];
+  List<BleDevice> get devices => ble.devices;
 
   @override
   Widget build(BuildContext context) {
@@ -47,29 +47,25 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('Plugin example app'),
       ),
-      body: ListView(
-        children: <Widget>[
-          RaisedButton(
-            onPressed: _scan,
-            child: Text("扫描设备"),
-          ),
-          for (final device in devices) _buildItem(device)
-        ],
-      ),
+      body: StreamBuilder<BleDevice>(
+          stream: ble.deviceStream,
+          builder: (context, _) {
+            print("build stream child");
+            return ListView(
+              children: <Widget>[
+                RaisedButton(
+                  onPressed: _scan,
+                  child: Text("扫描设备"),
+                ),
+                for (final device in devices) _buildItem(device)
+              ],
+            );
+          }),
     );
   }
 
   void _scan() async {
-    showLoadingDialog();
-
-    final devices = await ble.scan();
-
-    Navigator.pop(context);
-
-    print(devices);
-
-    this.devices = devices;
-    setState(() {});
+    await ble.scan();
   }
 
   void showLoadingDialog() {

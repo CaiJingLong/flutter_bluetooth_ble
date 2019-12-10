@@ -14,6 +14,7 @@ class BluetoothBle {
 
   BluetoothBle._() {
     _channel.invokeMethod("init");
+    _channel.setMethodCallHandler(this._onCallback);
   }
 
   factory BluetoothBle() {
@@ -21,28 +22,46 @@ class BluetoothBle {
     return _instance;
   }
 
-  static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
-  }
+  final devices = <BleDevice>[];
 
   /// timeout, second
   Future<List<BleDevice>> scan({
     List<String> services,
     int timeout = 3,
   }) async {
+    this.devices.clear();
     final result = await _channel.invokeMethod("scan", {
       "services": services,
       "time": timeout,
     });
-    print("result = $result");
     final list = result["devices"];
-    final devices = List<BleDevice>();
     for (final map in list) {
       final device = BleDevice.fromMap(map);
-      devices.add(device);
+      _addDevice(device);
     }
-    devices.sort();
-    return devices;
+    this.devices.sort();
+    return this.devices;
+  }
+
+  StreamController<BleDevice> _findDeviceController =
+      StreamController.broadcast();
+
+  Stream<BleDevice> get deviceStream => _findDeviceController.stream;
+
+  void _addDevice(BleDevice device) {
+    if (!devices.any((test) => test.id == device.id)) {
+      devices.add(device);
+      devices.sort();
+      _findDeviceController.add(device);
+    }
+  }
+
+  Future _onCallback(MethodCall call) async {
+    switch (call.method) {
+      case "found_device":
+        final device = BleDevice.fromMap(call.arguments);
+        _addDevice(device);
+        break;
+    }
   }
 }

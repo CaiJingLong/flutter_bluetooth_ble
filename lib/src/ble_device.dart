@@ -31,12 +31,20 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
 
   MethodChannel _channel;
 
+  static Map<String, BleDevice> _deviceMap = {};
+
   static BleDevice fromMap(Map map) {
-    return BleDevice()
-      ..id = map["id"]
-      ..name = map["name"]
-      ..rssi = map["rssi"]
-      ..refreshChannel();
+    var device = _deviceMap[map["id"]];
+    if (device == null) {
+      device = BleDevice()
+        ..id = map["id"]
+        ..name = map["name"]
+        ..rssi = map["rssi"]
+        ..refreshChannel();
+
+      _deviceMap[device.id] = device;
+    }
+    return device;
   }
 
   @override
@@ -97,15 +105,18 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
 
   void onConnect() {
     isConnect = true;
+    notifyListeners();
   }
 
   void onDisconnect() {
     this.service.clear();
     isConnect = false;
+    notifyListeners();
   }
 
   void connectFail() {
     isConnect = false;
+    notifyListeners();
   }
 
   Future<List<BleService>> discoverServices() async {

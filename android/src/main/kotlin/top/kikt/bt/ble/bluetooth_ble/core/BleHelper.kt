@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.ParcelUuid
 import io.flutter.plugin.common.PluginRegistry
+import top.kikt.bt.ble.bluetooth_ble.BluetoothBlePlugin
 import top.kikt.bt.ble.bluetooth_ble.logger
 
 /// create 2019-12-03 by cai
@@ -21,8 +22,6 @@ class BleHelper(private val registrar: PluginRegistry.Registrar) {
     get() = adapter.bluetoothLeScanner
   
   private val devicesMap = HashMap<String, BleDevice>()
-  
-  private val deviceList = ArrayList<BleDevice>()
   
   class ScannerCallback(private val bleHelper: BleHelper) : ScanCallback() {
     override fun onScanFailed(errorCode: Int) {
@@ -60,11 +59,13 @@ class BleHelper(private val registrar: PluginRegistry.Registrar) {
       device = BleDevice(registrar, result.device, result.rssi).apply {
         init()
       }
-      devicesMap[id] = device
+      onFoundDevice(id, device)
     }
-    if (!deviceList.contains(device)) {
-      deviceList.add(device)
-    }
+  }
+  
+  private fun onFoundDevice(id: String, device: BleDevice) {
+    devicesMap[id] = device
+    BluetoothBlePlugin.invokeMethod("found_device", device.toMap())
   }
   
   fun scanDevice(handler: ReplyHandler) {
@@ -73,7 +74,13 @@ class BleHelper(private val registrar: PluginRegistry.Registrar) {
       return
     }
     
-    deviceList.clear()
+    devicesMap.clear()
+    
+    val connectedDevices = ConnectedBleManager.getConnectedDevices()
+    
+    for (device in connectedDevices) {
+      onFoundDevice(device.id, device)
+    }
     
     val callback = ScannerCallback(this)
     
@@ -108,7 +115,7 @@ class BleHelper(private val registrar: PluginRegistry.Registrar) {
   private fun replyDevice(handler: ReplyHandler) {
     val devices = ArrayList<Map<String, Any>>()
     
-    for (bleDevice in deviceList) {
+    for (bleDevice in devicesMap.values) {
       devices.add(bleDevice.toMap())
     }
     handler.success(

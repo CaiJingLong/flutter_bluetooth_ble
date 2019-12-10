@@ -19,10 +19,17 @@ class BluetoothBlePlugin(registrar: Registrar) : MethodCallHandler {
   private val rxPermission: RxPermissions = RxPermissions(registrar.activity() as FragmentActivity)
   
   companion object {
+    
+    private lateinit var channel: MethodChannel
+    
     @JvmStatic
     fun registerWith(registrar: Registrar) {
-      val channel = MethodChannel(registrar.messenger(), "bluetooth_ble")
+      channel = MethodChannel(registrar.messenger(), "bluetooth_ble")
       channel.setMethodCallHandler(BluetoothBlePlugin(registrar))
+    }
+  
+    fun invokeMethod(method: String, args: Any?) {
+      channel.invokeMethod(method, args)
     }
   }
   
@@ -40,14 +47,11 @@ class BluetoothBlePlugin(registrar: Registrar) : MethodCallHandler {
           "scan" -> {
             manager.scanDevice(handler)
           }
-          "init" -> {
-          
-          }
         }
       } else {
         handler.success(-1)
       }
     }
-    
   }
+  
 }
