@@ -66,20 +66,20 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
       logger.debug("status = $status, newState = $newState")
       when (newState) {
         BluetoothGatt.STATE_CONNECTED -> {
-          notifyConnectState(true)
+          notifyConnectState(gatt, true)
         }
         BluetoothGatt.STATE_CONNECTING -> {
         }
         BluetoothGatt.STATE_DISCONNECTED -> {
           notifyingMap.clear()
-          notifyConnectState(false)
+          notifyConnectState(gatt, false)
         }
         BluetoothGatt.STATE_DISCONNECTING -> {
         }
       }
     }
     
-    private fun notifyConnectState(isConnect: Boolean) {
+    private fun notifyConnectState(gatt: BluetoothGatt?, isConnect: Boolean) {
       if (isConnect) {
         invokeMethod("onConnect")
       } else {
@@ -130,7 +130,8 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
     val handler = ReplyHandler(call, result)
     when (call.method) {
       "connect" -> {
-        this.gatt = device.connectGatt(registrar.activity(), false, callback, BluetoothDevice.TRANSPORT_LE)
+        val type = handler.param<Int>("type") ?: BluetoothDevice.TRANSPORT_LE
+        this.gatt = device.connectGatt(registrar.activity(), false, callback, type)
       }
       "disconnect" -> {
         gatt?.disconnect()

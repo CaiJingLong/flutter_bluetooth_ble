@@ -45,11 +45,4 @@ class BluetoothBle {
     devices.sort();
     return devices;
   }
-
-  Future<void> connect(BleDevice bleDevice) async {
-    final result = await _channel.invokeMethod("connect", {
-      "id": bleDevice.id,
-    });
-    print("connect result = $result");
-  }
 }

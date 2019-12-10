@@ -81,8 +81,9 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
     }
   }
 
-  void connect() {
-    _channel.invokeMethod("connect");
+  /// [type] 是连接模式(仅android有效, ios会忽略), 对于某些设备, 需要设置为 2 才可连接, 默认值是2
+  void connect([int type = 2]) {
+    _channel.invokeMethod("connect", {"type": type});
   }
 
   void disconnect() {
