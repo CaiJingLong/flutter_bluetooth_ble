@@ -41,16 +41,23 @@ class Ble :NSObject, CBCentralManagerDelegate{
                 }
                 handler.success(any: ["devices": result])
             })
-            var uuids : [CBUUID]?
+            var uuids = [CBUUID]()
             if services != nil {
-                uuids = services?.map({ (value) -> CBUUID in
+                if let result = services?.map({ (value) -> CBUUID in
                     return CBUUID(string: value)
-                })
-            } else {
-                uuids = nil
+                }){
+                    uuids.append(contentsOf: result)
+                }
             }
+            
             deviceMap.removeAll()
             connectionMap.removeAll()
+            
+            let deviceList = ConnectedDeviceManager.getConnectedDevice()
+            for device in deviceList{
+                onFoundDevice(peripheral: device.device , rssi: device.rssi)
+            }
+            
             manager.scanForPeripherals(withServices: uuids, options: nil)
         }
     }
@@ -69,9 +76,18 @@ class Ble :NSObject, CBCentralManagerDelegate{
     
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         NSLog("扫描到设备, \(peripheral.name ?? "未知"), id = \(peripheral.identifier)")
-        let wrapper = BluetoothWrapper(device: peripheral, rssi: RSSI.intValue)
-        deviceMap[peripheral.id] = wrapper
-        connectionMap[peripheral.id] = BluetoothConnection(manager:manager, wrapper: wrapper)
+        onFoundDevice(peripheral: peripheral, rssi: RSSI.intValue)
+    }
+    
+    func onFoundDevice(peripheral: CBPeripheral, rssi: Int){
+        if let _ = deviceMap[peripheral.id] {
+            return
+        } else {
+            let device = BluetoothWrapper(device: peripheral, rssi: rssi)
+            SwiftBluetoothBlePlugin.onFoundDevice(deviceWrapper: device)
+            deviceMap[peripheral.id] = device
+            connectionMap[peripheral.id] = BluetoothConnection(manager:manager, wrapper: device)
+        }
     }
     
     var connectionMap = Dictionary<String, BluetoothConnection>()
@@ -85,19 +101,31 @@ class Ble :NSObject, CBCentralManagerDelegate{
         return connectionMap[peripheral.id]
     }
     
+    func findWrapper(id:String) -> BluetoothWrapper?{
+        return deviceMap[id]
+    }
     
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         NSLog("连接设备: \(peripheral.name ?? "未知")")
+        if let wrapper = findWrapper(id: peripheral.id){
+            ConnectedDeviceManager.addDevice(wrapper: wrapper)
+        }
         findConnection(peripheral: peripheral)?.onConnect()
     }
     
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         NSLog("连接设备失败: \(peripheral.name ?? "未知")")
+        if let wrapper = findWrapper(id: peripheral.id){
+            ConnectedDeviceManager.removeDevice(wrapper: wrapper)
+        }
         findConnection(peripheral: peripheral)?.onFailConnect(error: error)
     }
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         NSLog("断开设备: \(peripheral.name ?? "未知")")
+        if let wrapper = findWrapper(id: peripheral.id){
+            ConnectedDeviceManager.removeDevice(wrapper: wrapper)
+        }
         findConnection(peripheral: peripheral)?.onDisconnect(error: error)
     }
     

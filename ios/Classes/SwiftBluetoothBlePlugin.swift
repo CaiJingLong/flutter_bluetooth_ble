@@ -5,11 +5,21 @@ public class SwiftBluetoothBlePlugin: NSObject, FlutterPlugin {
     
     static var registrar: FlutterPluginRegistrar!
     
+    static var channel: FlutterMethodChannel!
+    
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "bluetooth_ble", binaryMessenger: registrar.messenger())
+        channel = FlutterMethodChannel(name: "bluetooth_ble", binaryMessenger: registrar.messenger())
         let instance = SwiftBluetoothBlePlugin()
         self.registrar = registrar
         registrar.addMethodCallDelegate(instance, channel: channel)
+    }
+    
+    private static func invoke(method: String, args: Any?) {
+        channel.invokeMethod(method, arguments: args)
+    }
+    
+    static func onFoundDevice(deviceWrapper: BluetoothWrapper){
+        invoke(method: "found_device", args: deviceWrapper.toMap())
     }
     
     let ble = Ble.shared;
@@ -27,4 +37,5 @@ public class SwiftBluetoothBlePlugin: NSObject, FlutterPlugin {
             handler.notImplemented()
         }
     }
+    
 }
