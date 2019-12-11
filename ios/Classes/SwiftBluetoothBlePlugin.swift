@@ -33,6 +33,9 @@ public class SwiftBluetoothBlePlugin: NSObject, FlutterPlugin {
         case "init":
             ble.initManager()
             break
+        case "isEnabled":
+            handler.success(any: ble.isEnable())
+            break
         default:
             handler.notImplemented()
         }

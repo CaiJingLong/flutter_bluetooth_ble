@@ -125,4 +125,8 @@ class BleHelper(private val registrar: PluginRegistry.Registrar) {
     )
   }
   
+  fun isEnabled(): Boolean {
+    return adapter.isEnabled
+  }
+  
 }

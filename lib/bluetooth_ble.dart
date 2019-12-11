@@ -64,4 +64,9 @@ class BluetoothBle {
         break;
     }
   }
+
+  /// 蓝牙开关是否开启
+  Future<bool> isEnabled() async {
+    return _channel.invokeMethod("isEnabled");
+  }
 }

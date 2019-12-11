@@ -27,7 +27,7 @@ class BluetoothBlePlugin(registrar: Registrar) : MethodCallHandler {
       channel = MethodChannel(registrar.messenger(), "bluetooth_ble")
       channel.setMethodCallHandler(BluetoothBlePlugin(registrar))
     }
-  
+    
     fun invokeMethod(method: String, args: Any?) {
       channel.invokeMethod(method, args)
     }
@@ -47,9 +47,12 @@ class BluetoothBlePlugin(registrar: Registrar) : MethodCallHandler {
           "scan" -> {
             manager.scanDevice(handler)
           }
+          "isEnabled" -> {
+            handler.success(manager.isEnabled())
+          }
         }
       } else {
-        handler.success(-1)
+        handler.error("403", "无蓝牙权限")
       }
     }
   }

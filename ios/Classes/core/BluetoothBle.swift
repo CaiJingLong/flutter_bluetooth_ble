@@ -21,6 +21,14 @@ class Ble :NSObject, CBCentralManagerDelegate{
         NSLog("init manager: \(manager.state)")
     }
     
+    func isEnable() -> Bool{
+        return manager.state == .poweredOn
+    }
+    
+    func setEnable(enable: Bool){
+        
+    }
+    
     var deviceMap = Dictionary<String, BluetoothWrapper>()
     
     func scanDevice(handler: ReplyHandler){
