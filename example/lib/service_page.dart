@@ -4,6 +4,8 @@ import 'dart:typed_data';
 
 import 'package:bluetooth_ble/bluetooth_ble.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:oktoast/oktoast.dart';
 
 class ServicePage extends StatefulWidget {
   final BleDevice device;
@@ -162,6 +164,17 @@ class _ServicePageState extends State<ServicePage> {
                       ),
                     ),
                   );
+                },
+              ),
+              RaisedButton(
+                child: Text("复制信息"),
+                onPressed: () {
+                  final serviceUUID = ch.service.id;
+                  final characteristicsUUID = ch.id;
+                  final text =
+                      "service: $serviceUUID\ncharacteristics: $characteristicsUUID";
+                  Clipboard.setData(ClipboardData(text: text));
+                  showToast("信息已经被复制到剪切板:\n $text");
                 },
               ),
             ],
