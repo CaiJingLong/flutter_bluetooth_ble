@@ -106,12 +106,13 @@ class _ServicePageState extends State<ServicePage> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                Text("当前监听中: ${ch.notifying}"),
+                Container(height: 10),
                 Text("notifiable: ${ch.notifiable}"),
                 Text("service: ${ch.service.id}"),
                 Text("read: ${ch.read}"),
                 Text("write: ${ch.write}"),
                 Text("writeNoResponse: ${ch.writeNoResponse}"),
-                Text("notifying: ${ch.notifying}"),
               ],
             ),
           ),
@@ -171,8 +172,12 @@ class _ServicePageState extends State<ServicePage> {
                 onPressed: () {
                   final serviceUUID = ch.service.id;
                   final characteristicsUUID = ch.id;
-                  final text =
-                      "service: $serviceUUID\ncharacteristics: $characteristicsUUID";
+                  final deviceName = ch.service.device.name;
+                  final deviceId = ch.service.device.id;
+                  final text = "deviceName: $deviceName\n"
+                      "deviceId: $deviceId\n"
+                      "service: $serviceUUID\n"
+                      "characteristics: $characteristicsUUID";
                   Clipboard.setData(ClipboardData(text: text));
                   showToast("信息已经被复制到剪切板:\n $text");
                 },
