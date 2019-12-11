@@ -8,19 +8,27 @@
 import Foundation
 import CoreBluetooth
 
-struct BluetoothWrapper{
+class BluetoothWrapper{
     var device: CBPeripheral
     var rssi:Int
     
+    var name:String?
+    
     var id: String {
         return device.id
+    }
+    
+    init(device:CBPeripheral, name:String?, rssi:Int) {
+        self.device = device
+        self.name = name
+        self.rssi = rssi
     }
     
     func toMap() -> Dictionary<String, Any>{
         return [
             "id": id,
             "rssi" : rssi,
-            "name": device.name ?? ""
+            "name": name ?? device.name ?? ""
         ]
     }
 }

@@ -63,7 +63,7 @@ class Ble :NSObject, CBCentralManagerDelegate{
             
             let deviceList = ConnectedDeviceManager.getConnectedDevice()
             for device in deviceList{
-                onFoundDevice(peripheral: device.device , rssi: device.rssi)
+                onFoundDevice(peripheral: device.device, localName: device.name, rssi: device.rssi)
             }
             
             manager.scanForPeripherals(withServices: uuids, options: nil)
@@ -84,14 +84,17 @@ class Ble :NSObject, CBCentralManagerDelegate{
     
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         NSLog("扫描到设备, \(peripheral.name ?? "未知"), id = \(peripheral.identifier)")
-        onFoundDevice(peripheral: peripheral, rssi: RSSI.intValue)
+        
+        let localName = advertisementData[CBAdvertisementDataLocalNameKey] as? String
+        
+        onFoundDevice(peripheral: peripheral, localName: localName, rssi: RSSI.intValue)
     }
     
-    func onFoundDevice(peripheral: CBPeripheral, rssi: Int){
+    func onFoundDevice(peripheral: CBPeripheral, localName:String?, rssi: Int){
         if let _ = deviceMap[peripheral.id] {
             return
         } else {
-            let device = BluetoothWrapper(device: peripheral, rssi: rssi)
+            let device = BluetoothWrapper(device: peripheral, name: localName, rssi: rssi)
             SwiftBluetoothBlePlugin.onFoundDevice(deviceWrapper: device)
             deviceMap[peripheral.id] = device
             connectionMap[peripheral.id] = BluetoothConnection(manager:manager, wrapper: device)
