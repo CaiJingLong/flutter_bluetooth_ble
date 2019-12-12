@@ -30,11 +30,17 @@ class BluetoothBle {
     int timeout = 3,
   }) async {
     this.devices.clear();
+    _findDeviceController.add(null);
     final result = await _channel.invokeMethod("scan", {
       "services": services,
       "time": timeout,
     });
     final list = result["devices"];
+    print("on scan return result!");
+    if (list == null || list.isEmpty) {
+      notifyDeviceChange();
+      return this.devices;
+    }
     for (final map in list) {
       final device = BleDevice.fromMap(map);
       _addDevice(device);
@@ -49,11 +55,19 @@ class BluetoothBle {
   Stream<BleDevice> get deviceStream => _findDeviceController.stream;
 
   void _addDevice(BleDevice device) {
+    if (device == null) {
+      notifyDeviceChange();
+      return;
+    }
     if (!devices.any((test) => test.id == device.id)) {
       devices.add(device);
       devices.sort();
       _findDeviceController.add(device);
     }
+  }
+
+  void notifyDeviceChange() {
+    _findDeviceController.add(null);
   }
 
   Future _onCallback(MethodCall call) async {

@@ -50,12 +50,23 @@ class _HomePageState extends State<HomePage> {
       body: StreamBuilder<BleDevice>(
           stream: ble.deviceStream,
           builder: (context, _) {
-            print("build stream child");
             return ListView(
               children: <Widget>[
                 RaisedButton(
                   onPressed: _scan,
                   child: Text("扫描设备"),
+                ),
+                RaisedButton(
+                  onPressed: () => _scanWithService(macServiceId),
+                  child: Text("扫描1811设备"),
+                ),
+                RaisedButton(
+                  onPressed: () => _scanWithService("18F0"),
+                  child: Text("扫描18F0设备"),
+                ),
+                RaisedButton(
+                  onPressed: () => _scanWithService("FFF0"),
+                  child: Text("扫描FFF0设备"),
                 ),
                 for (final device in devices) _buildItem(device)
               ],
@@ -66,6 +77,12 @@ class _HomePageState extends State<HomePage> {
 
   void _scan() async {
     await ble.scan();
+  }
+
+  void _scanWithService(String uuid) async {
+    await ble.scan(
+      services: [uuid],
+    );
   }
 
   void showLoadingDialog() {
@@ -81,6 +98,13 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
+  }
+
+  String get macServiceId {
+    if (Platform.isIOS) {
+      return "1811";
+    }
+    return "00001811-0000-1000-8000-00805f9b34fb";
   }
 
   String get serviceUUID {

@@ -66,6 +66,8 @@ class Ble :NSObject, CBCentralManagerDelegate{
                 onFoundDevice(peripheral: device.device, localName: device.name, rssi: device.rssi)
             }
             
+            NSLog("uuids = \(uuids)")
+            
             manager.scanForPeripherals(withServices: uuids, options: nil)
         }
     }
@@ -83,9 +85,11 @@ class Ble :NSObject, CBCentralManagerDelegate{
     }
     
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
-        NSLog("扫描到设备, \(peripheral.name ?? "未知"), id = \(peripheral.identifier)")
-        
         let localName = advertisementData[CBAdvertisementDataLocalNameKey] as? String
+        
+        let uuids = advertisementData[CBAdvertisementDataServiceUUIDsKey]
+        
+        NSLog("扫描到设备, \(localName ?? peripheral.name ?? "未知"), id = \(peripheral.identifier)")
         
         onFoundDevice(peripheral: peripheral, localName: localName, rssi: RSSI.intValue)
     }
@@ -139,6 +143,8 @@ class Ble :NSObject, CBCentralManagerDelegate{
         }
         findConnection(peripheral: peripheral)?.onDisconnect(error: error)
     }
+    
+
     
     var connectionHandler: ReplyHandler?
     

@@ -53,6 +53,9 @@ class BleHelper(private val registrar: PluginRegistry.Registrar) {
     if (result == null) {
       return
     }
+    result.scanRecord?.serviceUuids?.let { uuidList ->
+      logger.info(uuidList.joinToString { it.uuid.toString() })
+    }
     val id = result.device.address
     var device = devicesMap[id]
     if (device == null) {
@@ -90,8 +93,11 @@ class BleHelper(private val registrar: PluginRegistry.Registrar) {
       
       val filters = arrayListOf<ScanFilter>()
       
-      val settings = ScanSettings.Builder().apply {
-      }.build()
+      val settings = ScanSettings.Builder()
+        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+//        .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+        .setCallbackType(ScanSettings.CALLBACK_TYPE_FIRST_MATCH)
+        .build()
       
       for (item in services) {
         val filter = ScanFilter.Builder().apply {
