@@ -25,6 +25,7 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
       logger.info("current connected status = $status, newState = $newState")
       when (newState) {
         BluetoothGatt.STATE_CONNECTED -> {
+          gatt?.requestMtu(512)
           notifyConnectState(gatt, true)
         }
         BluetoothGatt.STATE_CONNECTING -> {
@@ -79,6 +80,11 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
     override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
       super.onCharacteristicWrite(gatt, characteristic, status)
       logger.debug("onCharacteristicWrite: status=$status, value = ${characteristic?.value}")
+    }
+    
+    override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
+      super.onMtuChanged(gatt, mtu, status)
+      logger.info("mtu设置成功 , 当前mtu = $mtu, status = $status")
     }
   }
   
