@@ -76,13 +76,21 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _scan() async {
-    await ble.scan();
+    try {
+      await ble.scan();
+    } catch (e) {
+      print(e.message);
+    }
   }
 
   void _scanWithService(String uuid) async {
-    await ble.scan(
-      services: [uuid],
-    );
+    try {
+      await ble.scan(
+        services: [uuid],
+      );
+    } on Exception catch (e) {
+      print(e);
+    }
   }
 
   void showLoadingDialog() {
