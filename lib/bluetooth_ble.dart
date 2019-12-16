@@ -79,6 +79,10 @@ class BluetoothBle {
     }
   }
 
+  Future<bool> supportBle() async {
+    return _channel.invokeMethod("supportBle");
+  }
+
   /// 蓝牙开关是否开启
   Future<bool> isEnabled() async {
     return _channel.invokeMethod("isEnabled");
