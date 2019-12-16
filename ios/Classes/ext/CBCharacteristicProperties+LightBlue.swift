@@ -42,25 +42,22 @@ extension CBCharacteristicProperties {
         }
         return resultProperties
     }
-    
 }
 
-extension CBCharacteristic{
-    
-    var readable:Bool{
+extension CBCharacteristic {
+    var readable: Bool {
         return properties.contains(.read)
     }
-    
-    var writeable:Bool{
+
+    var writeable: Bool {
         return properties.contains(.write)
     }
-    
-    var writeableWithoutResponse: Bool{
+
+    var writeableWithoutResponse: Bool {
         return properties.contains(.writeWithoutResponse)
     }
-    
-    var notifiable: Bool{
+
+    var notifiable: Bool {
         return properties.contains(.notify)
     }
-    
 }

@@ -7,19 +7,17 @@
 
 import CoreBluetooth
 
-extension CBService{
-    
-    func findCharacteristic(id:String) -> CBCharacteristic?{
-        if let chs = self.characteristics{
+extension CBService {
+    func findCharacteristic(id: String) -> CBCharacteristic? {
+        if let chs = self.characteristics {
             for ch in chs {
-                if ch.id == id{
+                if ch.id == id {
                     return ch
                 }
             }
             return nil
-        }else{
+        } else {
             return nil
         }
     }
-    
 }

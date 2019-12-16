@@ -7,10 +7,9 @@
 
 import CoreBluetooth
 
-extension CBCharacteristic{
-    
-    func toMap() -> Dictionary<String,Any> {
-        let chMap: [String:Any] = [
+extension CBCharacteristic {
+    func toMap() -> [String: Any] {
+        let chMap: [String: Any] = [
             "uuid": self.id,
             "write": self.writeable,
             "writeableWithoutResponse": self.writeableWithoutResponse,
@@ -19,8 +18,7 @@ extension CBCharacteristic{
             "notifying": self.isNotifying,
             "serviceId": self.service.id,
         ]
-        
+
         return chMap
     }
-    
 }

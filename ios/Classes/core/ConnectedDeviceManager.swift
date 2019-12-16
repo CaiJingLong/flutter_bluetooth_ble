@@ -8,24 +8,23 @@
 import CoreBluetooth
 
 class ConnectedDeviceManager {
-    
-    private static var deviceMap = [String: BluetoothWrapper]();
-    
+    private static var deviceMap = [String: BluetoothWrapper]()
+
     static func addDevice(wrapper: BluetoothWrapper) {
-        if let _ = deviceMap[wrapper.id]{
+        if let _ = deviceMap[wrapper.id] {
             return
-        }else{
+        } else {
             deviceMap[wrapper.id] = wrapper
         }
     }
-    
-    static func removeDevice(wrapper: BluetoothWrapper){
+
+    static func removeDevice(wrapper: BluetoothWrapper) {
         deviceMap.removeValue(forKey: wrapper.id)
     }
-    
-    static func getConnectedDevice()-> [BluetoothWrapper]{
-        return deviceMap.map { (key,value) -> BluetoothWrapper in
-            return value
+
+    static func getConnectedDevice() -> [BluetoothWrapper] {
+        return deviceMap.map { (_, value) -> BluetoothWrapper in
+            value
         }
     }
 }
