@@ -41,7 +41,7 @@ public class SwiftBluetoothBlePlugin: NSObject, FlutterPlugin {
         }
 
         if !supportBle {
-            handler.fail(code: 1001, message: "不支持Ble设备", details: nil)
+            handler.fail(code: "1001", message: "不支持Ble设备", details: nil)
             return
         }
 
