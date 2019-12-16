@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:bluetooth_ble/bluetooth_ble.dart';
 import 'package:oktoast/oktoast.dart';
@@ -41,7 +43,15 @@ class _DevicePageState extends State<DevicePage> {
             child: Text(isConnect ? "断开" : "连接"),
             onPressed: () {
               if (!isConnect) {
-                widget.device.connect();
+                var device = widget.device;
+                StreamSubscription sub;
+                sub = device.connectStateStream.listen((data) async {
+                  sub.cancel();
+                  if (device.isConnect) {
+                    await device.requestMtu(512);
+                  }
+                });
+                device.connect();
               } else {
                 widget.device.disconnect();
               }

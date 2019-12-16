@@ -25,7 +25,6 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
       logger.info("current connected status = $status, newState = $newState")
       when (newState) {
         BluetoothGatt.STATE_CONNECTED -> {
-          gatt?.requestMtu(512)
           notifyConnectState(gatt, true)
         }
         BluetoothGatt.STATE_CONNECTING -> {
@@ -84,6 +83,7 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
     
     override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
       super.onMtuChanged(gatt, mtu, status)
+      mtuHandler?.success(mtu)
       logger.info("mtu设置成功 , 当前mtu = $mtu, status = $status")
     }
   }
@@ -92,12 +92,19 @@ class BleDevice(registrar: PluginRegistry.Registrar, device: BluetoothDevice, rs
   
   var discoverServiceHandler: ReplyHandler? = null
   
+  var mtuHandler: ReplyHandler? = null
+  
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     val handler = ReplyHandler(call, result)
     when (call.method) {
       "connect" -> {
         val type = handler.param<Int>("type") ?: BluetoothDevice.TRANSPORT_LE
         this.gatt = device.connectGatt(registrar.activity(), false, callback, type)
+      }
+      "requestMtu" -> {
+        mtuHandler = handler
+        val mtu = handler.param<Int>("mtu") ?: 512
+        gatt?.requestMtu(mtu)
       }
       "disconnect" -> {
         gatt?.disconnect()

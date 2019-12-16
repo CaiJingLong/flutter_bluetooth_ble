@@ -14,7 +14,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/flutter/ios"
 
 SPEC CHECKSUMS:
-  bluetooth_ble: 5f71ea8a9da81ba285f8c2e6dacb65e5642dce34
+  bluetooth_ble: c2068862b4eda87440ee0cb8658539c0ee17dedb
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
 
 PODFILE CHECKSUM: 10ae9c18d12c9ffc2275c9a159a3b1e281990db0

@@ -14,6 +14,10 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
 
   Stream<BleNotifyData> get notifyDataStream => _notifyDataCtl.stream;
 
+  StreamController<bool> _connectStateCtl = StreamController.broadcast();
+
+  Stream<bool> get connectStateStream => _connectStateCtl.stream;
+
   String id;
   int rssi;
   String name;
@@ -49,6 +53,7 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
 
   @override
   void dispose() {
+    _connectStateCtl.close();
     _notifyDataCtl.close();
     super.dispose();
   }
@@ -98,6 +103,11 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
     _channel.invokeMethod("disconnect");
   }
 
+  Future<void> requestMtu(int mtu) async {
+    final result = await _channel.invokeMethod("requestMtu");
+    print("new mtu = $result");
+  }
+
   @override
   String toString() {
     return 'BleDevice: {"name": $name, "id": $id, "rssi":$rssi}';
@@ -105,12 +115,14 @@ class BleDevice with ChangeNotifier implements Comparable<BleDevice> {
 
   void onConnect() {
     isConnect = true;
+    _connectStateCtl.add(true);
     notifyListeners();
   }
 
   void onDisconnect() {
     this.service.clear();
     isConnect = false;
+    _connectStateCtl.add(false);
     notifyListeners();
   }
 

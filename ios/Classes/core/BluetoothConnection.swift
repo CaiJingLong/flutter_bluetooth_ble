@@ -42,6 +42,8 @@ class BluetoothConnection: NSObject {
             discoverCharacteristics(handler)
         case "writeData":
             writeData(handler)
+        case "requestMtu":
+            handler.success(any: peripheral.maximumWriteValueLength(for: .withoutResponse))
         case "changeNotify":
             let chId = handler["ch"] as! String
             let serviceId = handler["service"] as! String
