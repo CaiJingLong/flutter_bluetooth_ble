@@ -16,7 +16,7 @@ extension CBCharacteristic {
             "readable": self.readable,
             "notifiable": self.notifiable,
             "notifying": self.isNotifying,
-            "serviceId": self.getCBService()?.id,
+            "serviceId": self.getCBService()?.id ?? "",
         ]
 
         return chMap
@@ -26,10 +26,8 @@ extension CBCharacteristic {
 extension CBCharacteristic{
     
     func getCBService() -> CBService? {
-        if(self.service is CBService){
-            return self.service as CBService
-        }
-        return nil
+        let service: CBService? = self.service
+        return service
     }
 
 }

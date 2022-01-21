@@ -155,14 +155,14 @@ extension BluetoothConnection: CBPeripheralDelegate {
     func peripheral(_: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error _: Error?) {
         invokeMethod("notifyState", [
             "ch": characteristic.toMap(),
-            "serviceId": characteristic.getCBService()?.id,
+            "serviceId": characteristic.getCBService()?.id ?? "",
         ])
     }
 
     func peripheral(_: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error _: Error?) {
         invokeMethod("notifyValue", [
             "ch": characteristic.toMap(),
-            "serviceId": characteristic.getCBService()?.id,
+            "serviceId": characteristic.getCBService()?.id ?? "",
             "data": characteristic.value ?? Data(),
         ])
     }
