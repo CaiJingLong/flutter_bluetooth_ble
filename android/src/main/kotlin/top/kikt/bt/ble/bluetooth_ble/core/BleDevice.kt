@@ -1,6 +1,9 @@
 package top.kikt.bt.ble.bluetooth_ble.core
 
+import android.Manifest
 import android.bluetooth.*
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
