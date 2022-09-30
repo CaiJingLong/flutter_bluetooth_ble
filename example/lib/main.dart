@@ -61,11 +61,11 @@ class _HomePageState extends State<HomePage> {
                   child: Text("扫描1811设备"),
                 ),
                 RaisedButton(
-                  onPressed: () => _scanWithService("18F0"),
+                  onPressed: () => _scanWithService(uuid("18F0")),
                   child: Text("扫描18F0设备"),
                 ),
                 RaisedButton(
-                  onPressed: () => _scanWithService("FFF0"),
+                  onPressed: () => _scanWithService(uuid("FFF0")),
                   child: Text("扫描FFF0设备"),
                 ),
                 for (final device in devices) _buildItem(device)
@@ -121,6 +121,16 @@ class _HomePageState extends State<HomePage> {
     } else {
       return "000018f0-0000-1000-8000-00805f9b34fb";
     }
+  }
+
+  String uuid(String simpleUUID) {
+    if (simpleUUID.length == 4) {
+      if (Platform.isIOS) {
+        return simpleUUID;
+      }
+      return "0000$simpleUUID-0000-1000-8000-00805f9b34fb";
+    }
+    return simpleUUID;
   }
 
   Widget _buildItem(BleDevice device) {
