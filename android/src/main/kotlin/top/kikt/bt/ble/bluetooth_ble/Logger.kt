@@ -14,31 +14,31 @@ class Logger(any: Any) {
   
   fun verbose(any: Any?) {
     checkLevel(LoggerLevel.Verbose) {
-      Log.v(tag, any?.toString())
+      Log.v(tag, any.toString())
     }
   }
   
   fun debug(any: Any?) {
     checkLevel(LoggerLevel.Debug) {
-      Log.d(tag, any?.toString())
+      Log.d(tag, any.toString())
     }
   }
   
   fun info(any: Any?) {
     checkLevel(LoggerLevel.Info) {
-      Log.i(tag, any?.toString())
+      Log.i(tag, any.toString())
     }
   }
   
   fun warning(any: Any?) {
     checkLevel(LoggerLevel.Warning) {
-      Log.w(tag, any?.toString())
+      Log.w(tag, any.toString())
     }
   }
   
   fun error(any: Any?) {
     checkLevel(LoggerLevel.Error) {
-      Log.e(tag, any?.toString())
+      Log.e(tag, any.toString())
     }
   }
   
